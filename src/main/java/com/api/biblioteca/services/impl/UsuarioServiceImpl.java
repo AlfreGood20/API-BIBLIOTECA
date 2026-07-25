@@ -1,12 +1,18 @@
 package com.api.biblioteca.services.impl;
 
 import com.api.biblioteca.repositorys.ReservaRepository;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.web.multipart.MultipartFile;
 import com.api.biblioteca.configurations.CustomUserDetails;
 import com.api.biblioteca.dtos.request.UsuarioRequest;
 import com.api.biblioteca.dtos.response.MultaResponse;
@@ -16,7 +22,8 @@ import com.api.biblioteca.dtos.response.UsuarioResponse;
 import com.api.biblioteca.dtos.updates.EstadoRequest;
 import com.api.biblioteca.enums.EstadoUsuarioNombre;
 import com.api.biblioteca.enums.RolNombre;
-import com.api.biblioteca.exceptions.DuplicateResourceExeption;
+import com.api.biblioteca.exceptions.BusinessExeption;
+import com.api.biblioteca.exceptions.ConflictExeption;
 import com.api.biblioteca.exceptions.ResourceNotFoundException;
 import com.api.biblioteca.mappers.DireccionMapper;
 import com.api.biblioteca.mappers.MultaMapper;
@@ -59,7 +66,6 @@ public class UsuarioServiceImpl implements UsuarioService{
     private final MultaMapper multaMapper;
     private final ReservaMapper reservaMapper;
 
-
     private final RolRepository rolRepository;
     private final EstadoUsuarioRepository estadoUsuarioRepository;
     private final MunicipioRepository municipioRepository;
@@ -69,6 +75,7 @@ public class UsuarioServiceImpl implements UsuarioService{
     private final ReservaRepository reservaRepository;
 
     private final PasswordEncoder encoder;
+    private final Path uploadPath;
 
     @Override
     @Transactional
@@ -83,11 +90,11 @@ public class UsuarioServiceImpl implements UsuarioService{
         nuevo.setEstado(estado);
 
         if(credencialRepository.existsByCorreo(request.credencial().correo())){
-            throw new DuplicateResourceExeption("Correo ya existente registrado");
+            throw new ConflictExeption("Correo ya existente registrado.");
         }
 
         Credencial credencial = Credencial.builder()
-            .contrasena(encoder.encode(request.credencial().contrasena())) //FALTA CODEAR LA CONTRASENA
+            .contrasena(encoder.encode(request.credencial().contrasena()))
             .correo(request.credencial().correo())
             .usuario(nuevo).build();
 
@@ -125,6 +132,7 @@ public class UsuarioServiceImpl implements UsuarioService{
     }
 
     @Override
+    @Transactional
     public UsuarioResponse cambiarEstadoUsuario(Long id, EstadoRequest request) {
         Usuario usuario = buscarUsuarioPorId(id);
         EstadoUsuario estado = buscarEstadoUsuarioPorId(request.id());
@@ -170,7 +178,7 @@ public class UsuarioServiceImpl implements UsuarioService{
     @Override
     public List<ReservaResponse> reservasPorUsuario(Long id) {
         Usuario usuario = buscarUsuarioPorId(id);
-        return reservaMapper.listEntityToListDto(reservaRepository.findByUsuario(usuario));
+        return reservaMapper.listEntityToListDto(reservaRepository.findByUsuarioOrderByFechaReservaDesc(usuario));
     }
 
     
@@ -181,6 +189,35 @@ public class UsuarioServiceImpl implements UsuarioService{
         
         return usuarioMapper.entityToDto(usuarioFinal);
     }
+
+    @Override
+    @Transactional
+    public UsuarioResponse actulizarFotoPerfil(CustomUserDetails usuario, MultipartFile file) {
+
+        if(file == null || file.isEmpty()){
+            throw new BusinessExeption("Imagen no recibida, es obligatorio.");
+        }
+
+        /* VALIDAR EL FORMATO CORRECTO */
+        String contentType = file.getContentType();
+
+        if (!MediaType.IMAGE_JPEG_VALUE.equals(contentType) && !MediaType.IMAGE_PNG_VALUE.equals(contentType)) {
+            throw new BusinessExeption("Solo se permiten imágenes JPG o PNG.");
+        }
+
+        Usuario usuarioObtenido = usuario.getUsuario();
+        String fotoVieja = usuarioObtenido.getFotoUrl();
+        
+        usuarioObtenido.setFotoUrl(guardarFotoAlDirectorio(file));
+
+        /* BORRAR FOTO ANTERIOR PARA NO OCUPAR ESPACIO EN DISCO */
+        if(fotoVieja != null && !fotoVieja.isBlank()){
+            borrarFotoDelDirectorio(fotoVieja);
+        }
+
+        return usuarioMapper.entityToDto(usuarioRepository.save(usuarioObtenido));
+    }
+
 
     
     //FUNCIONES REUTILIZABLE
@@ -217,5 +254,30 @@ public class UsuarioServiceImpl implements UsuarioService{
     private TipoTelefono buscarTipoTelefonoPorId(Long id){
         return tipoTelefonoRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Tipo de telefono no encontrado"));
+    }
+
+    private String guardarFotoAlDirectorio(MultipartFile file){
+        String nombreImagenOriginal = file.getOriginalFilename();
+
+        String nombreImagen =
+            UUID.randomUUID().toString().substring(0,10) +
+            nombreImagenOriginal.substring(nombreImagenOriginal.indexOf("."));
+
+        try {
+            Path rutaCompleta = uploadPath.resolve(nombreImagen);
+            Files.copy(file.getInputStream(), rutaCompleta);
+        } catch (IOException ex) {}
+
+        return "/uploads/"+nombreImagen;
+    }
+
+    private void borrarFotoDelDirectorio(String ruta){
+
+        try {
+            String nombreArchivo = Paths.get(ruta).getFileName().toString();
+            Path rutaAnterior = uploadPath.resolve(nombreArchivo);
+            Files.deleteIfExists(rutaAnterior);
+        } catch (IOException ex) {}
+    
     }
 }

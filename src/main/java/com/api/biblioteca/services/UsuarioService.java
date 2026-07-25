@@ -1,7 +1,7 @@
 package com.api.biblioteca.services;
 
 import java.util.List;
-
+import org.springframework.web.multipart.MultipartFile;
 import com.api.biblioteca.configurations.CustomUserDetails;
 import com.api.biblioteca.dtos.request.UsuarioRequest;
 import com.api.biblioteca.dtos.response.MultaResponse;
@@ -34,4 +34,6 @@ public interface UsuarioService {
 
     // PARA PERFIL
     UsuarioResponse obtenerPerfil (CustomUserDetails usuario);
+
+    UsuarioResponse actulizarFotoPerfil (CustomUserDetails usuario, MultipartFile file);
 }
