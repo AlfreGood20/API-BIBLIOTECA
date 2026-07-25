@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
 
         ResponseExeption response = ResponseExeption.builder()
             .status(HttpStatus.BAD_REQUEST.value())
-            .error("Conflicto de recurso")
+            .error("Error de validacion")
             .menssaje(ex.getMessage())
             .timestamp(LocalDateTime.now())
             .build();
@@ -236,6 +236,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.internalServerError().body(mensaje);
     }
 
+    //500
     @ExceptionHandler(IOException.class)
     public ResponseEntity<?> manejarErrorIO(HttpServletRequest request){
 
