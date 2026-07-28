@@ -35,11 +35,11 @@ import lombok.extern.slf4j.Slf4j;
     ),
     servers = {@Server(url = "http://localhost:8080/", description = "ENTORNO LOCAL")},
 
-    security = @SecurityRequirement(name = "AuthByJwt")
+    security = @SecurityRequirement(name = "Bearer")
 )
 
 @SecurityScheme(
-    name = "bearer auth",
+    name = "Bearer",
     type = SecuritySchemeType.HTTP,
     scheme = "bearer",
     bearerFormat = "JWT"

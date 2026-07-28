@@ -8,7 +8,6 @@ import com.api.biblioteca.configurations.CustomUserDetails;
 import com.api.biblioteca.dtos.response.UsuarioResponse;
 import com.api.biblioteca.services.UsuarioService;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,7 +29,7 @@ public class PerfilController {
 
     @PostMapping(value = "/foto" ,consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UsuarioResponse> actualizarFotoPerfil(
-        @AuthenticationPrincipal CustomUserDetails usuario,@RequestParam("file") MultipartFile file
+        @AuthenticationPrincipal CustomUserDetails usuario,@RequestParam("imagen") MultipartFile file
     ) {
         return ResponseEntity.ok(usuarioService.actulizarFotoPerfil(usuario, file));
     }
