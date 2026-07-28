@@ -23,6 +23,7 @@ public interface LibroMapper {
     @Mapping(target = "idioma", ignore = true)
     @Mapping(target = "autores", ignore = true)
     @Mapping(target = "ejemplares", ignore = true)
+    @Mapping(target = "portadaUrl", ignore = true)
     Libro dtoToEntity(LibroRequest request);
 
     List<LibroResponse> listEntityToListDto(List<Libro> list); 
