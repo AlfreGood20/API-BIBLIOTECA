@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
 
         ResponseExeption response = ResponseExeption.builder()
             .status(HttpStatus.BAD_REQUEST.value())
-            .error("Error de validacion")
+            .error("Datos invalidos")
             .menssaje(ex.getMessage())
             .timestamp(LocalDateTime.now())
             .build();
@@ -44,7 +44,7 @@ public class GlobalExceptionHandler {
 
         ResponseExeption response = ResponseExeption.builder()
             .status(HttpStatus.UNAUTHORIZED.value())
-            .error("Dato no recibidos")
+            .error("Datos no recibidos")
             .menssaje(ex.getMessage())
             .uri(request.getRequestURI())
             .timestamp(LocalDateTime.now())
@@ -113,6 +113,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 
+    // 401
     @ExceptionHandler(CredentialsExpiredException.class)
     public ResponseEntity<?> credentialsExpired(CredentialsExpiredException ex, HttpServletRequest request){
 
@@ -127,6 +128,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 
+    //401
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<?> badCredentials(HttpServletRequest request) {
 
@@ -159,6 +161,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.badRequest().body(response);
     }
+
 
 
 
@@ -207,6 +210,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
     }
 
+    //409
     @ExceptionHandler(ConflictExeption.class)
     public ResponseEntity<?> conflict(ConflictExeption ex, HttpServletRequest request){
         
@@ -249,6 +253,20 @@ public class GlobalExceptionHandler {
             .build();
         
         return ResponseEntity.internalServerError().body(mensaje);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<?> manejarSinPermisoAUnRecurso(AccessDeniedException ex, HttpServletRequest request){
+
+        ResponseExeption mensaje = ResponseExeption.builder()
+            .status(HttpStatus.FORBIDDEN.value())
+            .error(HttpStatus.FORBIDDEN.getReasonPhrase())
+            .menssaje(ex.getMessage())
+            .uri(request.getRequestURI())
+            .timestamp(LocalDateTime.now())
+            .build();
+
+        return new ResponseEntity<>(mensaje, HttpStatus.FORBIDDEN);
     }
 
 
