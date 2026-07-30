@@ -133,7 +133,7 @@ public class ReservaServiceImpl implements ReservaService{
         reserva.setFechaLimiteRecoger(LocalDate.now().plusDays(15));
 
         Ejemplar ejemplarDisponible = 
-            ejemplarRepository.findFirtByLibroAndEstadoOrderByAsc(reserva.getLibro(), buscarEstadoEjemplarPorNombre(EstadoEjemplarNombre.DISPONIBLE))
+            ejemplarRepository.findFirstByLibroAndEstadoOrderByIdAsc(reserva.getLibro(), buscarEstadoEjemplarPorNombre(EstadoEjemplarNombre.DISPONIBLE))
                 .orElseThrow(() -> new ConflictExeption("No hay ejemplares disponibles."));
         
         PrestamoRequest prestamo = new PrestamoRequest(
