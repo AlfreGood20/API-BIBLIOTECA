@@ -12,7 +12,7 @@ import com.api.biblioteca.models.Libro;
 
 public interface EjemplarRepository extends JpaRepository<Ejemplar, Long> {
 
-    Optional<Ejemplar> findFirtByLibroAndEstadoOrderByAsc(Libro libro, EstadoEjemplar estado);
+    Optional<Ejemplar> findFirstByLibroAndEstadoOrderByIdAsc(Libro libro, EstadoEjemplar estado);
 
     @Query("""
         SELECT e FROM Ejemplar e
