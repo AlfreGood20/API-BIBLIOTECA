@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -39,6 +40,11 @@ public class ReservaController {
     @GetMapping("/usuario")
     public ResponseEntity<List<ReservaResponse>> misReservas(@AuthenticationPrincipal CustomUserDetails usuario) {
         return ResponseEntity.ok(reservaService.misReservas(usuario));
+    }
+
+    @PatchMapping("/usuario/{id}")
+    public ResponseEntity<ReservaResponse> cambiarEstadoCancelar(@AuthenticationPrincipal CustomUserDetails usuario, @PathVariable Long id){
+        return ResponseEntity.ok(reservaService.cancelarReserva(usuario, id));
     }
 
     @GetMapping("/bibliotecario")

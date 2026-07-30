@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.api.biblioteca.configurations.CustomUserDetails;
 import com.api.biblioteca.dtos.request.PrestamoRequest;
 import com.api.biblioteca.dtos.response.PrestamoResponse;
 import com.api.biblioteca.enums.EstadoEjemplarNombre;
@@ -40,7 +42,7 @@ public class PrestamoServiceImpl implements PrestamoService{
     
     @Override
     @Transactional
-    public List<PrestamoResponse> crearNuevo(PrestamoRequest request) {
+    public List<PrestamoResponse> crearNuevo(PrestamoRequest request, CustomUserDetails usuarioAdmin) {
 
         Usuario usuario = usuarioRepository.findById(request.usuarioId())
             .orElseThrow(()->new ResourceNotFoundException("Usuario no encontrado"));
@@ -75,7 +77,7 @@ public class PrestamoServiceImpl implements PrestamoService{
                 .fechaLimite(LocalDate.now().plusDays(15))
                 .fechaDevolucion(null)
                 .usuario(usuario)
-                .usuarioAdmin(null)
+                .usuarioAdmin(usuarioAdmin.getUsuario())
                 .estado(buscarPorNombre(EstadoPrestamoNombre.ACTIVO))
                 .ejemplar(ejemplar)
                 .build();
