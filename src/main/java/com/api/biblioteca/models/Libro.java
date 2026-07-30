@@ -35,7 +35,7 @@ public class Libro {
     @Column(nullable = false)
     private String titulo;
 
-    @Column(length = 500)
+    @Column(length = 5000)
     private String sinopsis;
 
     @Column(nullable = false, unique = true)

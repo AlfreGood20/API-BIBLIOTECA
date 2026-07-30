@@ -5,6 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
+
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.api.biblioteca.dtos.request.LibroRequest;
@@ -44,7 +46,6 @@ public class LibroServiceImpl implements LibroService{
 
     private final Path uploadPath;
 
-    @SuppressWarnings("null")
     @Override
     public LibroResponse crearNuevo(LibroRequest request, MultipartFile file) {
 
@@ -63,7 +64,7 @@ public class LibroServiceImpl implements LibroService{
         libro.setIdioma(idioma);
         libro.setAutores(autores);
 
-        if(file != null || !file.isEmpty()){
+        if(file != null && !file.isEmpty()){
             libro.setPortadaUrl(obtenerUrlPortada(file));
         }
         
@@ -166,6 +167,13 @@ public class LibroServiceImpl implements LibroService{
     }
 
     private String obtenerUrlPortada(MultipartFile file){
+
+        String contentType = file.getContentType();
+
+        if (!MediaType.IMAGE_JPEG_VALUE.equals(contentType) && !MediaType.IMAGE_PNG_VALUE.equals(contentType)) {
+            throw new BusinessExeption("Solo se permiten imágenes JPG o PNG.");
+        }
+        
         String nombreImagenOriginal = file.getOriginalFilename();
 
         String nombreImagen = 

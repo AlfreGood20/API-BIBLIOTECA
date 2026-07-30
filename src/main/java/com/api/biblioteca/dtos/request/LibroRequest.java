@@ -20,6 +20,7 @@ public record LibroRequest
     String isbn,
 
     @Positive(message = "El valor tiene que ser positivo")
+    @JsonProperty("numero_paginas")
     int numeroPaginas,
 
     @Positive(message = "El valor tiene ser positivo")
