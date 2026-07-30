@@ -31,6 +31,7 @@ public class GlobalExceptionHandler {
             .status(HttpStatus.BAD_REQUEST.value())
             .error("Datos invalidos")
             .menssaje(ex.getMessage())
+            .uri(request.getRequestURI())
             .timestamp(LocalDateTime.now())
             .build();
 
