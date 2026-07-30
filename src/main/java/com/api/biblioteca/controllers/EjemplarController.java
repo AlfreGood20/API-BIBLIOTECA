@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
-
 @RestController
 @RequestMapping("api/ejemplares")
 @RequiredArgsConstructor
@@ -27,7 +26,7 @@ public class EjemplarController {
 
     private final EjemplarService ejemplarService;
 
-    @PostMapping("/")
+    @PostMapping("/{id}")
     public ResponseEntity<EjemplarResponse> crearNuevo(@PathVariable Long id) {
         return new ResponseEntity<EjemplarResponse>(ejemplarService.crearNuevo(id), HttpStatus.CREATED);
     }
@@ -43,7 +42,7 @@ public class EjemplarController {
 
     @GetMapping("/{id}")
     public ResponseEntity<EjemplarResponse> buscarEjemplarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok().body(ejemplarService.obtenerEjemplarPorId(null));
+        return ResponseEntity.ok().body(ejemplarService.obtenerEjemplarPorId(id));
     }
 
     @PatchMapping("/{id}/estado")
@@ -51,7 +50,7 @@ public class EjemplarController {
         return ResponseEntity.ok().body(ejemplarService.cambiarEstadoEjemplarPorId(request, id));
     }
 
-    @DeleteMapping("/{di}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarEjemplarPorId(@PathVariable Long id){
         ejemplarService.eliminarEjemplarPorId(id);
         return ResponseEntity.noContent().build();

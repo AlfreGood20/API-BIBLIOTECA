@@ -1,17 +1,19 @@
 package com.api.biblioteca.repositorys;
 
 import java.util.List;
-
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 import com.api.biblioteca.models.Ejemplar;
+import com.api.biblioteca.models.EstadoEjemplar;
+import com.api.biblioteca.models.Libro;
 
-@Repository
+
 public interface EjemplarRepository extends JpaRepository<Ejemplar, Long> {
 
-    
+    Optional<Ejemplar> findFirtByLibroAndEstadoOrderByAsc(Libro libro, EstadoEjemplar estado);
+
     @Query("""
         SELECT e FROM Ejemplar e
         WHERE (:libroId IS NULL OR e.libro.id = :libroId)
