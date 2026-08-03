@@ -30,7 +30,6 @@ public class FilterJwt extends OncePerRequestFilter{
         try{
 
             final String token = getToken(request);
-            log.info("Token recibido: "+token);
 
             if(token == null){
                 throw new IllegalArgumentException("Token vacío, no recibimos token.");
@@ -45,7 +44,6 @@ public class FilterJwt extends OncePerRequestFilter{
                         Authentication authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
 
                         SecurityContextHolder.getContext().setAuthentication(authentication);
-                        log.info("Guardamos con exito al usuario en el contexto de spring security");
                     }
                 }
             }

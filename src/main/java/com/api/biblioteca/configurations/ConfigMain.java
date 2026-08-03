@@ -15,10 +15,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
@@ -30,12 +33,20 @@ import lombok.extern.slf4j.Slf4j;
     info = @Info(
         title = "API - BIBLIOTECA",
         version = "1.0.0",
-        description = "",
-        contact = @Contact(name = "José Alfredo", email = "josealfredolopezdelacruz2@gmail.com")
+        description = "API REST para gestión de biblioteca: catálogo de libros, autores, "
+            + "editoriales, categorías, ejemplares físicos, reservas, préstamos y multas. "
+            + "Incluye autenticación JWT y control de acceso por roles.",
+        contact = @Contact(name = "José Alfredo", email = "josealfredolopezdelacruz2@gmail.com"),
+        license = @License(name = "MIT License", url = "https://opensource.org/licenses/MIT")
     ),
     servers = {@Server(url = "http://localhost:8080/", description = "ENTORNO LOCAL")},
 
-    security = @SecurityRequirement(name = "Bearer")
+    security = @SecurityRequirement(name = "Bearer"),
+
+    externalDocs = @ExternalDocumentation(
+        description = "Repositorio en github",
+        url = "https://github.com/AlfreGood20/api-biblioteca"
+    )
 )
 
 @SecurityScheme(
