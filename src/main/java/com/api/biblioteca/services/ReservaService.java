@@ -1,11 +1,12 @@
 package com.api.biblioteca.services;
 
 import java.util.List;
-
 import com.api.biblioteca.configurations.CustomUserDetails;
 import com.api.biblioteca.dtos.request.ReservaRequest;
 import com.api.biblioteca.dtos.response.ReservaResponse;
 import com.api.biblioteca.dtos.updates.EstadoRequest;
+import com.api.biblioteca.enums.EstadoReservaNombre;
+
 
 public interface ReservaService {
 
@@ -13,7 +14,7 @@ public interface ReservaService {
     ReservaResponse crearNuevo(ReservaRequest request, CustomUserDetails usuario);
 
     // Usuario sus reservas
-    List<ReservaResponse> misReservas(CustomUserDetails usuario);
+    List<ReservaResponse> misReservas(CustomUserDetails usuario, EstadoReservaNombre estado);
 
     ReservaResponse cancelarReserva(CustomUserDetails usuario, Long id);
 

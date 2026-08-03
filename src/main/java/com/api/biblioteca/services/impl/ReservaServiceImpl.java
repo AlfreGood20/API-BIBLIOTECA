@@ -66,9 +66,9 @@ public class ReservaServiceImpl implements ReservaService{
         return reservaMapper.entityToDto(reservaRepository.save(reserva));
     }
 
-    @Override
-    public List<ReservaResponse> misReservas(CustomUserDetails usuario){
-        return reservaMapper.listEntityToListDto(reservaRepository.findByUsuarioOrderByFechaReservaDesc(usuario.getUsuario()));
+   @Override
+    public List<ReservaResponse> misReservas(CustomUserDetails usuario, EstadoReservaNombre estado) {
+        return reservaMapper.listEntityToListDto(reservaRepository.buscarMisReservas(usuario.getUsuario(), estado));
     }
 
     
@@ -121,7 +121,7 @@ public class ReservaServiceImpl implements ReservaService{
         EstadoReserva estadoReserva = estadoReservaRepository.findById(request.id())
             .orElseThrow(() -> new ResourceNotFoundException("Estado reserva no encontrado."));
 
-         if(reserva.getEstado().getNombre() == EstadoReservaNombre.CANCELADA || reserva.getEstado().getNombre() == EstadoReservaNombre.EXPIRADA){
+         if(reserva.getEstado().getNombre() == EstadoReservaNombre.CANCELADA || reserva.getEstado().getNombre() == EstadoReservaNombre.EXPIRADA || reserva.getEstado().getNombre() == EstadoReservaNombre.ENTREGADA){
             throw new ConflictExeption("Esta reserva ya se encuentra en estado "+reserva.getEstado().getNombre()+".");
         }
 
