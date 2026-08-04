@@ -18,7 +18,7 @@ public interface UsuarioMapper {
     @Mapping(source = "credencial.correo", target = "correo")
     UsuarioResponse entityToDto(Usuario entity);
 
-    @Mapping(target = "correo", ignore = true)
+    @Mapping(source = "credencial.correo", target = "correo")
     UsuarioResumen entityToResumen(Usuario entity);
 
     // Dto to entity
