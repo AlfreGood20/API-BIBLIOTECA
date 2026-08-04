@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @RestController
 @RequestMapping("/api/estados")
 @RequiredArgsConstructor
-@Tag(name = "Tipos de estados", description = "Operaciones para consultar los distintos tipos de estados.")
+@Tag(name = "Tipos de estados", description = "Operaciones para consultar los distintos tipos de estados. Solo para bibliotecarios y administradores.")
 public class EstadosUsables {
 
     private final EstadoReservaRepository estadoReservaRepository;
