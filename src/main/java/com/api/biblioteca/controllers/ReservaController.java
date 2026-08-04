@@ -7,9 +7,8 @@ import com.api.biblioteca.configurations.CustomUserDetails;
 import com.api.biblioteca.dtos.request.ReservaRequest;
 import com.api.biblioteca.dtos.response.ReservaResponse;
 import com.api.biblioteca.dtos.updates.EstadoRequest;
+import com.api.biblioteca.enums.EstadoReservaNombre;
 import com.api.biblioteca.services.ReservaService;
-
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -26,7 +25,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Hidden
 @RestController
 @RequestMapping("api/reservas")
 @RequiredArgsConstructor
@@ -46,8 +44,8 @@ public class ReservaController {
 
     @Operation(summary = "Obtener mis reserva", description = "Devuelve el historial de reserva para usuarios autenticados. Tanto pendiente, cancelados, expirado o disponibles.")
     @GetMapping("/usuario")
-    public ResponseEntity<List<ReservaResponse>> misReservas(@AuthenticationPrincipal CustomUserDetails usuario) {
-        return ResponseEntity.ok(reservaService.misReservas(usuario));
+    public ResponseEntity<List<ReservaResponse>> misReservas(@AuthenticationPrincipal CustomUserDetails usuario, @RequestParam(required = false) EstadoReservaNombre estado) {
+        return ResponseEntity.ok(reservaService.misReservas(usuario, estado));
     }
 
     @Operation(summary = "Cambiar estado cancelar reserva", description = """

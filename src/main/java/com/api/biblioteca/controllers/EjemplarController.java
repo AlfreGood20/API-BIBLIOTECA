@@ -57,6 +57,7 @@ public class EjemplarController {
     }
 
 
+    @Operation(summary = "Obtener ejemplar por id", description = "Obtendras un ejemplar registrado indicando el id.")
     @GetMapping("/bibliotecario/{id}")
     public ResponseEntity<EjemplarResponse> buscarEjemplarPorId(@PathVariable Long id) {
         return ResponseEntity.ok().body(ejemplarService.obtenerEjemplarPorId(id));
