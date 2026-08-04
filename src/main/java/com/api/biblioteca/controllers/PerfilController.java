@@ -7,7 +7,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.api.biblioteca.configurations.CustomUserDetails;
 import com.api.biblioteca.dtos.response.UsuarioResponse;
 import com.api.biblioteca.services.UsuarioService;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 @RestController
 @RequestMapping("/api/perfil")
 @RequiredArgsConstructor
-@Hidden
 @Tag(name = "Perfiles", description = "Operaciones de perfil, para autenticados.")
 public class PerfilController {
 
