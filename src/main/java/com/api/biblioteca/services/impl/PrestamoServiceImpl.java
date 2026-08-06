@@ -3,9 +3,9 @@ package com.api.biblioteca.services.impl;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.api.biblioteca.configurations.CustomUserDetails;
 import com.api.biblioteca.dtos.request.PrestamoRequest;
 import com.api.biblioteca.dtos.response.PrestamoResponse;
@@ -27,9 +27,11 @@ import com.api.biblioteca.repositorys.PrestamoRepository;
 import com.api.biblioteca.repositorys.UsuarioRepository;
 import com.api.biblioteca.services.PrestamoService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PrestamoServiceImpl implements PrestamoService{
     
     private final PrestamoRepository prestamoRepository;
@@ -39,13 +41,16 @@ public class PrestamoServiceImpl implements PrestamoService{
     private final EstadoEjemplarRepository estadoEjemplarRepository;
 
     private final PrestamoMapper prestamoMapper;
+
+    @Value("${app.prestamo-dias-limite}")
+    private int DIAS_LIMITE;
     
     @Override
     @Transactional
     public List<PrestamoResponse> crearNuevo(PrestamoRequest request, CustomUserDetails usuarioAdmin) {
 
         Usuario usuario = usuarioRepository.findById(request.usuarioId())
-            .orElseThrow(()->new ResourceNotFoundException("Usuario no encontrado"));
+            .orElseThrow(()->new ResourceNotFoundException("Usuario no encontrado."));
 
         if(usuario.getEstado().getNombre() != EstadoUsuarioNombre.ACTIVO){
             throw new BusinessExeption("No se puede hacer prestamos a usuario, INACTIVO, SUSPENDIDO O BLOQUEADO.");
@@ -74,7 +79,7 @@ public class PrestamoServiceImpl implements PrestamoService{
        for (Ejemplar ejemplar : ejemplares) {
 
             Prestamo prestamo = Prestamo.builder()
-                .fechaLimite(LocalDate.now().plusDays(15))
+                .fechaLimite(LocalDate.now().plusDays(DIAS_LIMITE))
                 .fechaDevolucion(null)
                 .usuario(usuario)
                 .usuarioAdmin(usuarioAdmin.getUsuario())
@@ -118,6 +123,27 @@ public class PrestamoServiceImpl implements PrestamoService{
         return prestamoMapper.entityToDto(prestamoRepository.save(prestamo));
     }
 
+    @Override
+    public List<PrestamoResponse> misPrestamos(CustomUserDetails usuario) {
+        return prestamoMapper.listEntityToListDto(prestamoRepository.findByUsuario(usuario.getUsuario()));
+    }
+
+    @Override
+    @Transactional
+    public List<Prestamo> actualizarPrestamosEstadoVencido() {
+        log.info("BUSCANDO PRESTAMOS VENCIDOS...");
+        List<Prestamo> prestamosVencidos = prestamoRepository.findByEstadoAndFechaLimiteBefore(buscarPorNombre(EstadoPrestamoNombre.ACTIVO), LocalDate.now());
+        log.info("TOTALES PRESTAMOS VENCIDOS: {}",prestamosVencidos.size());
+
+        prestamosVencidos.forEach(p -> p.setEstado(buscarPorNombre(EstadoPrestamoNombre.VENCIDO)));
+
+        prestamoRepository.saveAll(prestamosVencidos);
+        log.info("ACTUALIZADO CON EXITO LOS PRESTAMOS VENCIDOS.");
+
+        return prestamosVencidos;
+    }
+
+
 
     // FUNCIONES REUTILIZABLES
     private EstadoPrestamo buscarPorNombre(EstadoPrestamoNombre nombre){
@@ -129,5 +155,5 @@ public class PrestamoServiceImpl implements PrestamoService{
         return estadoEjemplarRepository.findByNombre(nombre)
             .orElseThrow(()-> new ResourceNotFoundException("Estado ejempar no encontrado"));
     }
-    
+
 }
