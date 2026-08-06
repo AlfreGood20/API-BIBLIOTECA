@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import com.api.biblioteca.enums.EstadoPrestamoNombre;
+import com.api.biblioteca.models.EstadoPrestamo;
 import com.api.biblioteca.models.Prestamo;
 import com.api.biblioteca.models.Usuario;
 
@@ -27,7 +28,7 @@ public interface PrestamoRepository extends JpaRepository<Prestamo, Long> {
         @Param("usuarioId") Long usuarioId
     );
 
-    List<Prestamo> findByEstado_NombreAndFechaLimiteBefore(EstadoPrestamoNombre nombre,LocalDate fechaLimite);
+    List<Prestamo> findByEstadoAndFechaLimiteBefore(EstadoPrestamo estado, LocalDate fecha);
 
     List<Prestamo> findByEstado_Nombre(EstadoPrestamoNombre estado);
 }
