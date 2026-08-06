@@ -40,7 +40,7 @@ public class Multa {
     @Column(name = "fecha_pago")
     private LocalDateTime fechaPago;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal importe;
 
     @OneToOne
