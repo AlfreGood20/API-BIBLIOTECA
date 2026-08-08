@@ -7,6 +7,7 @@ import com.api.biblioteca.dtos.request.LibroRequest;
 import com.api.biblioteca.dtos.response.AutorResponse;
 import com.api.biblioteca.dtos.response.EjemplarResponse;
 import com.api.biblioteca.dtos.response.LibroResponse;
+import com.api.biblioteca.dtos.response.PaginaResponse;
 import com.api.biblioteca.services.LibroService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,6 +16,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
+
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -54,14 +60,16 @@ public class LibroController {
                 para publicos.
             """)
     @GetMapping("/public")
-    public ResponseEntity<List<LibroResponse>> obtenerLibros(
+    public ResponseEntity<PaginaResponse<LibroResponse>> obtenerLibros(
         @RequestParam(required = false) String titulo,
         @RequestParam(required = false) String isbn,
         @RequestParam(required = false) Long categoriaId,
         @RequestParam(required = false) Long editorialId,
-        @RequestParam(required = false) Long idiomaid
+        @RequestParam(required = false) Long idiomaId,
+        @ParameterObject
+        @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
     ) {
-        return ResponseEntity.ok().body(libroService.obtenerLibros(titulo, isbn, categoriaId, editorialId, idiomaid));
+        return ResponseEntity.ok().body(libroService.obtenerLibros(titulo, isbn, categoriaId, editorialId, idiomaId, pageable));
     }
 
 

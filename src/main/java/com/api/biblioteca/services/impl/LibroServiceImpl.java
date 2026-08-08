@@ -6,6 +6,8 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,6 +15,7 @@ import com.api.biblioteca.dtos.request.LibroRequest;
 import com.api.biblioteca.dtos.response.AutorResponse;
 import com.api.biblioteca.dtos.response.EjemplarResponse;
 import com.api.biblioteca.dtos.response.LibroResponse;
+import com.api.biblioteca.dtos.response.PaginaResponse;
 import com.api.biblioteca.exceptions.BusinessExeption;
 import com.api.biblioteca.exceptions.ResourceNotFoundException;
 import com.api.biblioteca.mappers.AutorMapper;
@@ -71,10 +74,24 @@ public class LibroServiceImpl implements LibroService{
         return libroMapper.entityToDto(libroRepository.save(libro));
     }
 
+
+    /* SERVICIO DE OBTENER LIBROS */
     @Override
-    public List<LibroResponse> obtenerLibros(String titulo, String isbn, Long categoriaId, Long editorialId, Long idiomaId) {
-        return libroMapper.listEntityToListDto(libroRepository.findByFiltros(titulo, isbn, categoriaId, editorialId, idiomaId));
+    public PaginaResponse<LibroResponse> obtenerLibros(String titulo, String isbn, Long categoriaId, Long editorialId, Long idiomaId, Pageable pageable) {
+        Page<Libro> pagina = libroRepository.findByFiltros(titulo, isbn, categoriaId, editorialId, idiomaId, pageable);
+        Page<LibroResponse> paginaResponse = pagina.map(l -> libroMapper.entityToDto(l));
+
+        return new PaginaResponse<>(
+            paginaResponse.getContent(), 
+            paginaResponse.getNumber(), 
+            paginaResponse.getTotalPages(), 
+            paginaResponse.getTotalElements(), 
+            paginaResponse.isFirst(), 
+            paginaResponse.isLast());
     }
+
+
+
 
     @Override
     public LibroResponse obtenerLibroPorId(Long id) {
