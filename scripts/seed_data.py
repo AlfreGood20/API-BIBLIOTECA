@@ -1,6 +1,7 @@
 import requests
 from faker import Faker
 import random
+import json
 
 # LIBRERIA DE DATOS FAKE
 fake = Faker('es_MX')
@@ -9,7 +10,7 @@ fake = Faker('es_MX')
 base_url = 'http://localhost:8080/api'
 
 # PARA PRUEBA UN TOKEN DE 1 HORA COMO ADMINISTRADOR
-token_access = 'eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIwNDk4MTViNi1mZThjLTRmYzYtODdhYS01NzFkMDY3MjQ4OGQiLCJub21icmVfY29tcGxldG8iOiJTVVBFUiBBRE1JTiBPTkUiLCJyb2wiOlt7ImF1dGhvcml0eSI6IlJPTEVfQURNSU5JU1RSQURPUiJ9XSwic3ViIjoic3VwZXJBZG1pbkBtZS5jb20iLCJpYXQiOjE3ODYwNTcxNzAsImV4cCI6MTc4NjA2MDc3MH0.0bz4Rt9l6ahbHGW9IThBoOLnWdWCw-7LvYcYHirPnc8'
+token_access = 'eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJlMDVhMjBlYS01MWY3LTRlNWItOTBlMi0wMTI0YzRhZWYzNTMiLCJub21icmVfY29tcGxldG8iOiJTVVBFUiBBRE1JTiBPTkUiLCJmb3RvX3VybCI6Ii91cGxvYWRzLzM0MjkzMzQ2LTEuanBnIiwicm9sIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOSVNUUkFET1IifV0sInN1YiI6InN1cGVyQWRtaW5AbWUuY29tIiwiaWF0IjoxNzg2MzI3ODQxLCJleHAiOjE3ODYzMzE0NDF9.qFb3-ug51gqnH7ho5AHMgkP_YK67W-5YKRxXkO3fJDk'
 
 headers = {"Authorization": f"Bearer {token_access}"}
 
@@ -70,7 +71,7 @@ def poblar_editorial_libros():
 
 
 
-def poblar_autores_libros(cantidad=40):
+def poblar_autores_libros(cantidad=200):
 
     for _ in range(cantidad):
         response = requests.post(
@@ -85,10 +86,34 @@ def poblar_autores_libros(cantidad=40):
         )
         print(response.status_code, response.json())
 
+def poblar_libros(cantidad=50):
+
+    for _ in range(cantidad):
+
+        libro = {
+            'titulo': fake.sentence(nb_words=4).replace('.', ''),
+            'sinopsis': fake.paragraph(nb_sentences=5),
+            'anio': random.randint(1950, 2026),
+            'isbn': fake.isbn13(),
+            'idioma_id': random.randint(1,50),
+            'categoria_id': 1,
+            'editorial_id': random.randint(1,50),
+            'numero_paginas': random.randint(80,900),
+            'autores_id': random.sample(range(1, 54), k=random.randint(1, 3))
+        }
+
+        response = requests.post(
+            url=f'{base_url}/libros',
+            files={'libro': (None, json.dumps(libro), 'application/json')},
+            headers=headers
+        )
+        print(response.status_code, response.json())
+
 if __name__ == "__main__":
     print("==== EJECUTANDO SCRIPTS PYTHON ====")
     #poblar_idiomas_libros(50)
     #poblar_categorias_libros()
     #poblar_nacionalidad_autores()
     #poblar_editorial_libros()
-    poblar_autores_libros()
+    #poblar_autores_libros()
+    poblar_libros()
