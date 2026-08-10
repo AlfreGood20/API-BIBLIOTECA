@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.api.biblioteca.dtos.request.LibroRequest;
 import com.api.biblioteca.dtos.response.AutorResponse;
 import com.api.biblioteca.dtos.response.EjemplarResponse;
+import com.api.biblioteca.dtos.response.LibroCatalogoResponse;
 import com.api.biblioteca.dtos.response.LibroResponse;
 import com.api.biblioteca.dtos.response.PaginaResponse;
 import com.api.biblioteca.exceptions.BusinessExeption;
@@ -77,9 +78,9 @@ public class LibroServiceImpl implements LibroService{
 
     /* SERVICIO DE OBTENER LIBROS */
     @Override
-    public PaginaResponse<LibroResponse> obtenerLibros(String titulo, String isbn, Long categoriaId, Long editorialId, Long idiomaId, Pageable pageable) {
+    public PaginaResponse<LibroCatalogoResponse> obtenerLibros(String titulo, String isbn, Long categoriaId, Long editorialId, Long idiomaId, Pageable pageable) {
         Page<Libro> pagina = libroRepository.findByFiltros(titulo, isbn, categoriaId, editorialId, idiomaId, pageable);
-        Page<LibroResponse> paginaResponse = pagina.map(l -> libroMapper.entityToDto(l));
+        Page<LibroCatalogoResponse> paginaResponse = pagina.map(libroMapper::entityToDtoCatalogo);
 
         return new PaginaResponse<>(
             paginaResponse.getContent(), 

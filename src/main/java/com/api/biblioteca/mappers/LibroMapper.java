@@ -4,6 +4,7 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import com.api.biblioteca.dtos.request.LibroRequest;
+import com.api.biblioteca.dtos.response.LibroCatalogoResponse;
 import com.api.biblioteca.dtos.response.LibroResponse;
 import com.api.biblioteca.models.Libro;
 
@@ -25,6 +26,10 @@ public interface LibroMapper {
     @Mapping(target = "ejemplares", ignore = true)
     @Mapping(target = "portadaUrl", ignore = true)
     Libro dtoToEntity(LibroRequest request);
+
+    //PARA LA PAGINACION entity to dto
+    LibroCatalogoResponse entityToDtoCatalogo(Libro entity);
+
 
     List<LibroResponse> listEntityToListDto(List<Libro> list); 
 }

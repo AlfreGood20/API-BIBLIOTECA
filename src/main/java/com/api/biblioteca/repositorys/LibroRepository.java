@@ -12,7 +12,8 @@ public interface LibroRepository extends JpaRepository<Libro, Long> {
 
     @Query("""
         SELECT l FROM Libro l
-        WHERE (:titulo IS NULL OR LOWER(l.titulo) LIKE LOWER(CONCAT('%', CAST(:titulo AS string), '%')))
+        WHERE (:titulo IS NULL OR
+            LOWER(l.titulo) LIKE LOWER(CONCAT(CAST(:titulo AS string), '%')))
         AND (:isbn IS NULL OR l.isbn = :isbn)
         AND (:categoriaId IS NULL OR l.categoria.id = :categoriaId)
         AND (:editorialId IS NULL OR l.editorial.id = :editorialId)

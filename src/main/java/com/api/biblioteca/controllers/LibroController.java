@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.api.biblioteca.dtos.request.LibroRequest;
 import com.api.biblioteca.dtos.response.AutorResponse;
 import com.api.biblioteca.dtos.response.EjemplarResponse;
+import com.api.biblioteca.dtos.response.LibroCatalogoResponse;
 import com.api.biblioteca.dtos.response.LibroResponse;
 import com.api.biblioteca.dtos.response.PaginaResponse;
 import com.api.biblioteca.services.LibroService;
@@ -16,7 +17,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
-
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -60,7 +60,7 @@ public class LibroController {
                 para publicos.
             """)
     @GetMapping("/public")
-    public ResponseEntity<PaginaResponse<LibroResponse>> obtenerLibros(
+    public ResponseEntity<PaginaResponse<LibroCatalogoResponse>> obtenerLibros(
         @RequestParam(required = false) String titulo,
         @RequestParam(required = false) String isbn,
         @RequestParam(required = false) Long categoriaId,

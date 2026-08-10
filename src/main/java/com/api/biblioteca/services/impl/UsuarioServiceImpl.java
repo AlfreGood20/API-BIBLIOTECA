@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
-
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -178,7 +177,7 @@ public class UsuarioServiceImpl implements UsuarioService{
     @Override
     public List<ReservaResponse> reservasPorUsuario(Long id) {
         Usuario usuario = buscarUsuarioPorId(id);
-        return reservaMapper.listEntityToListDto(reservaRepository.findByUsuarioOrderByFechaReservaDesc(usuario));
+        return reservaMapper.listEntityToListDto(reservaRepository.buscarMisReservas(usuario, null));
     }
 
     

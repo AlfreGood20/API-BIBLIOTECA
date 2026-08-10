@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.api.biblioteca.dtos.request.LibroRequest;
 import com.api.biblioteca.dtos.response.AutorResponse;
 import com.api.biblioteca.dtos.response.EjemplarResponse;
+import com.api.biblioteca.dtos.response.LibroCatalogoResponse;
 import com.api.biblioteca.dtos.response.LibroResponse;
 import com.api.biblioteca.dtos.response.PaginaResponse;
 
@@ -13,7 +14,7 @@ public interface LibroService {
 
     LibroResponse crearNuevo(LibroRequest request, MultipartFile file);
 
-    PaginaResponse<LibroResponse> obtenerLibros(String titulo, String isbn, Long categoriaId, Long editorialId, Long idiomaId, Pageable pageable);
+    PaginaResponse<LibroCatalogoResponse> obtenerLibros(String titulo, String isbn, Long categoriaId, Long editorialId, Long idiomaId, Pageable pageable);
 
     LibroResponse obtenerLibroPorId(Long id);
 
