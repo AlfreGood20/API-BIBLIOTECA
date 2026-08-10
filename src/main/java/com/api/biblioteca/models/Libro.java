@@ -5,6 +5,7 @@ import java.util.List;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -50,19 +51,19 @@ public class Libro {
     @Column(name = "portada_url")
     private String portadaUrl;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_categoria",nullable = false)
     private Categoria categoria;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_editorial",nullable = false)
     private Editorial editorial;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_idioma",nullable = false)
     private Idioma idioma;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "libro_autor",
         joinColumns = @JoinColumn(name = "fk_libro"),
@@ -70,6 +71,6 @@ public class Libro {
     )
     private List<Autor> autores;
 
-    @OneToMany(mappedBy = "libro", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "libro", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Ejemplar> ejemplares;
 }
