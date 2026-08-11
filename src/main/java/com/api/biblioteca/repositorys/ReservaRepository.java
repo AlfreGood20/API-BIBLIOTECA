@@ -5,10 +5,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import com.api.biblioteca.enums.EstadoReservaNombre;
+import com.api.biblioteca.models.EstadoReserva;
 import com.api.biblioteca.models.Reserva;
 import com.api.biblioteca.models.Usuario;
 
 public interface ReservaRepository extends JpaRepository<Reserva, Long> {
+
+    long countByUsuarioAndEstado(Usuario usuario, EstadoReserva estado);
 
     @Query("""
         SELECT r FROM Reserva r
