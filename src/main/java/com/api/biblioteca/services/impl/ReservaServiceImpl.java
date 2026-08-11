@@ -51,11 +51,14 @@ public class ReservaServiceImpl implements ReservaService{
     @Override
     public ReservaResponse crearNuevo(ReservaRequest request, CustomUserDetails usuario) {
 
+        EstadoReserva estadoReserva = buscarEstadoReservaPorNombre(EstadoReservaNombre.PENDIENTE);
+
+        if(reservaRepository.countByUsuarioAndEstado(usuario.getUsuario(), estadoReserva) >= 10){
+            throw new ConflictExeption("No puedes tener más de 10 reservas en estado PENDIENTE.");
+        }
+
         Libro libro = libroRepository.findById(request.libroId())
             .orElseThrow(() -> new ResourceNotFoundException("Libro no encontrado."));
-
-        EstadoReserva estadoReserva = estadoReservaRepository.findByNombre(EstadoReservaNombre.PENDIENTE)
-            .orElseThrow(() -> new ResourceNotFoundException("Estado reserva no encontrado."));
 
         Reserva reserva = Reserva.builder()
             .usuario(usuario.getUsuario())
