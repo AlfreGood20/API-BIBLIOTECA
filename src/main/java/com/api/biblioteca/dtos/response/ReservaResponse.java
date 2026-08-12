@@ -11,7 +11,7 @@ public record ReservaResponse
     LocalDateTime fechaReserva,
     @JsonProperty("fecha_limite_recoger")
     LocalDate fechaLimiteRecoger,
-    LibroResponse libro,
+    LibroCatalogoResponse libro,
     String estado
 ) {
 }

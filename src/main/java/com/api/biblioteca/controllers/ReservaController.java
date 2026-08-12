@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.service.annotation.PatchExchange;
 import com.api.biblioteca.configurations.CustomUserDetails;
 import com.api.biblioteca.dtos.request.ReservaRequest;
+import com.api.biblioteca.dtos.response.PaginaResponse;
 import com.api.biblioteca.dtos.response.ReservaResponse;
 import com.api.biblioteca.dtos.updates.EstadoRequest;
 import com.api.biblioteca.enums.EstadoReservaNombre;
@@ -14,6 +15,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
+
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -44,8 +50,14 @@ public class ReservaController {
 
     @Operation(summary = "Obtener mis reserva", description = "Devuelve el historial de reserva para usuarios autenticados. Tanto pendiente, cancelados, expirado o disponibles.")
     @GetMapping("/usuario")
-    public ResponseEntity<List<ReservaResponse>> misReservas(@AuthenticationPrincipal CustomUserDetails usuario, @RequestParam(required = false) EstadoReservaNombre estado) {
-        return ResponseEntity.ok(reservaService.misReservas(usuario, estado));
+    public ResponseEntity<PaginaResponse<ReservaResponse>> misReservas(
+        @AuthenticationPrincipal CustomUserDetails usuario, 
+        @RequestParam(required = false) EstadoReservaNombre estado,
+        @ParameterObject
+        @PageableDefault(page = 0, size = 10, sort = "fechaReserva", direction = Direction.DESC)
+        Pageable pageable
+    ) {
+        return ResponseEntity.ok(reservaService.misReservas(usuario, estado, pageable));
     }
 
     @Operation(summary = "Cambiar estado cancelar reserva", description = """

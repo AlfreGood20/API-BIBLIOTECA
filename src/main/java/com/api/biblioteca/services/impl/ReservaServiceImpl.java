@@ -3,11 +3,15 @@ package com.api.biblioteca.services.impl;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.api.biblioteca.configurations.CustomUserDetails;
 import com.api.biblioteca.dtos.request.PrestamoRequest;
 import com.api.biblioteca.dtos.request.ReservaRequest;
+import com.api.biblioteca.dtos.response.PaginaResponse;
 import com.api.biblioteca.dtos.response.ReservaResponse;
 import com.api.biblioteca.dtos.updates.EstadoRequest;
 import com.api.biblioteca.enums.EstadoEjemplarNombre;
@@ -69,9 +73,19 @@ public class ReservaServiceImpl implements ReservaService{
         return reservaMapper.entityToDto(reservaRepository.save(reserva));
     }
 
+    /* BUSCAR LAS RESERVAS POR FILTROS */
    @Override
-    public List<ReservaResponse> misReservas(CustomUserDetails usuario, EstadoReservaNombre estado) {
-        return reservaMapper.listEntityToListDto(reservaRepository.buscarMisReservas(usuario.getUsuario(), estado));
+    public PaginaResponse<ReservaResponse> misReservas(CustomUserDetails usuario, EstadoReservaNombre estado, Pageable pageable) {
+        Page<Reserva> reservas = reservaRepository.buscarMisReservas(usuario.getUsuario(), estado, pageable);
+        Page<ReservaResponse> paginaResponse = reservas.map(reservaMapper::entityToDto);
+        
+        return new PaginaResponse<>(
+            paginaResponse.getContent(), 
+            paginaResponse.getNumber(), 
+            paginaResponse.getTotalPages(), 
+            paginaResponse.getTotalElements(), 
+            paginaResponse.isFirst(), 
+            paginaResponse.isLast());
     }
 
     
