@@ -9,6 +9,8 @@ public record LibroCatalogoResponse(
     String isbn,
     int anio,
     @JsonProperty("portada_url")
-    String portadaUrl
+    String portadaUrl,
+    String editorial,
+    String idioma
 ) {
 }

@@ -28,6 +28,8 @@ public interface LibroMapper {
     Libro dtoToEntity(LibroRequest request);
 
     //PARA LA PAGINACION entity to dto
+    @Mapping(source = "editorial.nombre", target = "editorial")
+    @Mapping(source = "idioma.nombre", target = "idioma")
     LibroCatalogoResponse entityToDtoCatalogo(Libro entity);
 
 
