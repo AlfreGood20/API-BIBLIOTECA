@@ -54,7 +54,7 @@ public class ReservaController {
         @AuthenticationPrincipal CustomUserDetails usuario, 
         @RequestParam(required = false) EstadoReservaNombre estado,
         @ParameterObject
-        @PageableDefault(page = 0, size = 10, sort = "fechaReserva", direction = Direction.DESC)
+        @PageableDefault(page = 0, size = 6, sort = "fechaReserva", direction = Direction.DESC)
         Pageable pageable
     ) {
         return ResponseEntity.ok(reservaService.misReservas(usuario, estado, pageable));
