@@ -1,6 +1,6 @@
 package com.api.biblioteca.services.impl;
 
-import com.api.biblioteca.repositorys.ReservaRepository;
+//import com.api.biblioteca.repositorys.ReservaRepository;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,15 +19,17 @@ import com.api.biblioteca.dtos.response.PrestamoResponse;
 import com.api.biblioteca.dtos.response.ReservaResponse;
 import com.api.biblioteca.dtos.response.UsuarioResponse;
 import com.api.biblioteca.dtos.updates.EstadoRequest;
+import com.api.biblioteca.dtos.updates.PerfilUpdate;
 import com.api.biblioteca.enums.EstadoUsuarioNombre;
 import com.api.biblioteca.enums.RolNombre;
+import com.api.biblioteca.exceptions.AccessDeniedException;
 import com.api.biblioteca.exceptions.BusinessExeption;
 import com.api.biblioteca.exceptions.ConflictExeption;
 import com.api.biblioteca.exceptions.ResourceNotFoundException;
 import com.api.biblioteca.mappers.DireccionMapper;
 import com.api.biblioteca.mappers.MultaMapper;
 import com.api.biblioteca.mappers.PrestamoMapper;
-import com.api.biblioteca.mappers.ReservaMapper;
+//import com.api.biblioteca.mappers.ReservaMapper;
 import com.api.biblioteca.mappers.TelefonoMapper;
 import com.api.biblioteca.mappers.UsuarioMapper;
 import com.api.biblioteca.models.Credencial;
@@ -45,6 +47,7 @@ import com.api.biblioteca.repositorys.EstadoUsuarioRepository;
 import com.api.biblioteca.repositorys.MunicipioRepository;
 import com.api.biblioteca.repositorys.PrestamoRepository;
 import com.api.biblioteca.repositorys.RolRepository;
+import com.api.biblioteca.repositorys.TelefonoRepository;
 import com.api.biblioteca.repositorys.TipoTelefonoRepository;
 import com.api.biblioteca.repositorys.UsuarioRepository;
 import com.api.biblioteca.services.UsuarioService;
@@ -63,7 +66,7 @@ public class UsuarioServiceImpl implements UsuarioService{
     private final TelefonoMapper telefonoMapper;
     private final PrestamoMapper prestamoMapper;
     private final MultaMapper multaMapper;
-    private final ReservaMapper reservaMapper;
+    //private final ReservaMapper reservaMapper;
 
     private final RolRepository rolRepository;
     private final EstadoUsuarioRepository estadoUsuarioRepository;
@@ -71,7 +74,8 @@ public class UsuarioServiceImpl implements UsuarioService{
     private final TipoTelefonoRepository tipoTelefonoRepository;
     private final CredencialRepository credencialRepository;
     private final PrestamoRepository prestamoRepository;
-    private final ReservaRepository reservaRepository;
+    private final TelefonoRepository telefonoRepository;
+    //private final ReservaRepository reservaRepository;
 
     private final PasswordEncoder encoder;
     private final Path uploadPath;
@@ -176,22 +180,21 @@ public class UsuarioServiceImpl implements UsuarioService{
 
     @Override
     public List<ReservaResponse> reservasPorUsuario(Long id) {
-        Usuario usuario = buscarUsuarioPorId(id);
-        return reservaMapper.listEntityToListDto(reservaRepository.buscarMisReservas(usuario, null));
+        return null;
     }
 
     
+
+    /* ======================== SERVICIOS PARA USUARIOS APP WEB RESERVAS ========================== */
     @Override
     public UsuarioResponse obtenerPerfil(CustomUserDetails usuario) {
-
         Usuario usuarioFinal = buscarUsuarioPorId(usuario.id());
-        
         return usuarioMapper.entityToDto(usuarioFinal);
     }
 
     @Override
     @Transactional
-    public UsuarioResponse actulizarFotoPerfil(CustomUserDetails usuario, MultipartFile file) {
+    public UsuarioResponse actualizarFotoPerfil(CustomUserDetails usuario, MultipartFile file) {
 
         if(file == null || file.isEmpty()){
             throw new BusinessExeption("Imagen no recibida, es obligatorio.");
@@ -199,7 +202,6 @@ public class UsuarioServiceImpl implements UsuarioService{
 
         /* VALIDAR EL FORMATO CORRECTO */
         String contentType = file.getContentType();
-
         if (!MediaType.IMAGE_JPEG_VALUE.equals(contentType) && !MediaType.IMAGE_PNG_VALUE.equals(contentType)) {
             throw new BusinessExeption("Solo se permiten imágenes JPG o PNG.");
         }
@@ -217,9 +219,36 @@ public class UsuarioServiceImpl implements UsuarioService{
         return usuarioMapper.entityToDto(usuarioRepository.save(usuarioObtenido));
     }
 
+    @Override
+    @Transactional
+    public UsuarioResponse actualizarDatosPerfil(CustomUserDetails usuario, PerfilUpdate request) {
+        
+        Usuario usuarioActualizar = usuario.getUsuario();
+        usuarioActualizar.setNombre(request.nombre());
+        usuarioActualizar.setApellidoPaterno(request.apellidoPaterno());
+        usuarioActualizar.setApellidoMaterno(request.apellidoMaterno());
+
+        request.telefonos().forEach(telefono -> {
+            Telefono telefonoEncontrado = telefonoRepository.findById(telefono.id())
+                .orElseThrow(() -> new ResourceNotFoundException("Telefono con ID: "+telefono.id()+" no encontrado."));
+
+            if(!telefonoEncontrado.getUsuario().getId().equals(usuarioActualizar.getId())){
+                throw new AccessDeniedException("No tienes permiso de modificar telefono con ID: "+telefonoEncontrado.getId()+ ".");
+            }
+
+            telefonoEncontrado.setNumero(telefono.numero());
+        });
+
+        return usuarioMapper.entityToDto(usuarioRepository.save(usuarioActualizar));
+    }
+
 
     
-    //FUNCIONES REUTILIZABLE
+
+
+
+
+    /* =================================== FUNCIONES REUTILIZABLES ======================================= */
     private Usuario buscarUsuarioPorId(Long id){
         return usuarioRepository.findById(id)
             .orElseThrow(()-> new ResourceNotFoundException("Usuario no encontrado"));

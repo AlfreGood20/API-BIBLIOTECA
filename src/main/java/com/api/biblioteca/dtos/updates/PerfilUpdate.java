@@ -1,9 +1,6 @@
 package com.api.biblioteca.dtos.updates;
 
 import java.util.List;
-
-import com.api.biblioteca.dtos.request.TelefonoRequest;
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -18,6 +15,6 @@ public record PerfilUpdate
     String apellidoMaterno,
     @Valid
     @NotEmpty(message = "Es obligatorio")
-    List<TelefonoRequest> telefonos
+    List<TelefonoUpdate> telefonos
 ) {
 }

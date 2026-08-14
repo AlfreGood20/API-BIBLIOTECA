@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.api.biblioteca.configurations.CustomUserDetails;
 import com.api.biblioteca.dtos.response.UsuarioResponse;
+import com.api.biblioteca.dtos.updates.PerfilUpdate;
 import com.api.biblioteca.services.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
@@ -31,9 +33,15 @@ public class PerfilController {
         return ResponseEntity.ok(usuarioService.obtenerPerfil(usuario));
     }
 
-    @Operation(summary = "Actulizar foto de perfil", description = "Actulizaras foto de perfil indicadole desde tus archivos, deberas de autenticarte con el token de acesso.")
+    @Operation(summary = "Actualizar foto de perfil", description = "Actualizaras foto de perfil indicadole desde tus archivos, deberas de autenticarte con el token de acesso.")
     @PatchMapping(value = "/foto" ,consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UsuarioResponse> actualizarFotoPerfil(@AuthenticationPrincipal CustomUserDetails usuario, @RequestParam("imagen") MultipartFile file) {
-        return ResponseEntity.ok(usuarioService.actulizarFotoPerfil(usuario, file));
+        return ResponseEntity.ok(usuarioService.actualizarFotoPerfil(usuario, file));
+    }
+
+    @Operation(summary = "Actualizar datos de perfil", description = "Actualizaras los datos del perfil. Para usuarios autenticados.")
+    @PatchMapping
+    public ResponseEntity<UsuarioResponse> actualizarDatos (@AuthenticationPrincipal CustomUserDetails usuario,@RequestBody PerfilUpdate request){
+        return ResponseEntity.ok(usuarioService.actualizarDatosPerfil(usuario, request));
     }
 }
