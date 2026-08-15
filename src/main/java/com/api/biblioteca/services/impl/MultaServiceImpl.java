@@ -6,10 +6,13 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.api.biblioteca.configurations.CustomUserDetails;
 import com.api.biblioteca.dtos.response.MultaResponse;
+import com.api.biblioteca.dtos.response.PaginaResponse;
 import com.api.biblioteca.enums.EstadoMultaNombre;
 import com.api.biblioteca.exceptions.BusinessExeption;
 import com.api.biblioteca.exceptions.ResourceNotFoundException;
@@ -36,11 +39,8 @@ public class MultaServiceImpl implements MultaService{
     @Value("${app.multa-costo-por-dia}")
     private BigDecimal COSTO_POR_DIA;
 
-    @Override
-    public List<MultaResponse> obtenerMultas(Long estadoId) {
-        return multaMapper.listEntityToListDto(multaRepository.buscarPorParametros(estadoId));
-    }
-
+    
+    /* ================================= SERVICIOS PARA ADMINISTRADOR =============================== */
     @Override
     @Transactional
     public MultaResponse pagarMulta(Long id) {
@@ -65,9 +65,17 @@ public class MultaServiceImpl implements MultaService{
     @Override
     public MultaResponse obtenerMultaPorId(Long id) {
         return multaMapper.entityToDto(multaRepository.findById(id)
-            .orElseThrow(()-> new ResourceNotFoundException("Multa no encontrada")));
+            .orElseThrow(()-> new ResourceNotFoundException("Multa no encontrada.")));
     }
 
+    @Override
+    public List<MultaResponse> obtenerMultas(Long estadoId) {
+        return multaMapper.listEntityToListDto(multaRepository.buscarPorParametros(estadoId));
+    }
+
+
+
+    /* ============================================== SERVICIO PARA EL SCHEDULED =========================================== */
     @Override
     @Transactional
     public List<Multa> generarMultas(List<Prestamo> prestamosVencidos) {
@@ -118,10 +126,30 @@ public class MultaServiceImpl implements MultaService{
     }
 
 
+
+    /* ================================= SERVICIOS PARA APP WEB RESERVA =============================================== */
+    @Override
+    public PaginaResponse<MultaResponse> misMultas(CustomUserDetails usuario, EstadoMultaNombre estado, Pageable pageable) {
+        Page<Multa> multas = multaRepository.bsucarMisReservas(usuario.getUsuario(), estado, pageable);
+        Page<MultaResponse> paginaResponse = multas.map(multaMapper::entityToDto);
+
+        return new PaginaResponse<>(
+            paginaResponse.getContent(), 
+            paginaResponse.getNumber(), 
+            paginaResponse.getTotalPages(), 
+            paginaResponse.getTotalElements(), 
+            paginaResponse.isFirst(), 
+            paginaResponse.isLast()
+        );
+    }
+
+
+
+
     
-    // FUNCIONES REUTILIZABLES
+    /*================================= FUNCIONES REUTILIZABLES ===================================== */
     private EstadoMulta buscarEstadoPorNombre (EstadoMultaNombre estado){
         return estadoMultaRepository.findByNombre(estado)
             .orElseThrow(() -> new ResourceNotFoundException("Estado multa no encontrado."));
-    }    
+    } 
 }
