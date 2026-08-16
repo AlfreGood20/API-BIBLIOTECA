@@ -12,8 +12,6 @@ public record MultaResponse
     int diasRetraso,
     @JsonProperty("fecha_registro")
     LocalDateTime fechaRegistro,
-    @JsonProperty("costo_unitario")
-    BigDecimal costoUnitario,
     @JsonProperty("fecha_pago")
     LocalDateTime fechaPago,
     BigDecimal importe,
