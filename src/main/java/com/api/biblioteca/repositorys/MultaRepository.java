@@ -20,6 +20,13 @@ public interface MultaRepository extends JpaRepository<Multa, Long> {
         """)
     List<Multa> buscarPorParametros(@Param("estadoId") Long estadoId);
 
+    @Query("""
+        SELECT COUNT(m) FROM Multa m
+        WHERE m.prestamo.usuario = :usuario
+        AND m.estado = :estado
+        """)
+    long countByUsuarioAndEstado(@Param("usuario") Usuario usuario, @Param("estado") EstadoMulta estado);
+    
     List<Multa> findByEstado(EstadoMulta estado);
 
     @Query(
