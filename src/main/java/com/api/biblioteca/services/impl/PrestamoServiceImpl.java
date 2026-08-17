@@ -4,12 +4,16 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.api.biblioteca.configurations.CustomUserDetails;
 import com.api.biblioteca.dtos.request.PrestamoRequest;
+import com.api.biblioteca.dtos.response.PaginaResponse;
 import com.api.biblioteca.dtos.response.PrestamoResponse;
 import com.api.biblioteca.enums.EstadoEjemplarNombre;
+import com.api.biblioteca.enums.EstadoMultaNombre;
 import com.api.biblioteca.enums.EstadoPrestamoNombre;
 import com.api.biblioteca.enums.EstadoUsuarioNombre;
 import com.api.biblioteca.exceptions.BusinessExeption;
@@ -17,12 +21,15 @@ import com.api.biblioteca.exceptions.ResourceNotFoundException;
 import com.api.biblioteca.mappers.PrestamoMapper;
 import com.api.biblioteca.models.Ejemplar;
 import com.api.biblioteca.models.EstadoEjemplar;
+import com.api.biblioteca.models.EstadoMulta;
 import com.api.biblioteca.models.EstadoPrestamo;
 import com.api.biblioteca.models.Prestamo;
 import com.api.biblioteca.models.Usuario;
 import com.api.biblioteca.repositorys.EjemplarRepository;
 import com.api.biblioteca.repositorys.EstadoEjemplarRepository;
+import com.api.biblioteca.repositorys.EstadoMultaRepository;
 import com.api.biblioteca.repositorys.EstadoPrestamoRepository;
+import com.api.biblioteca.repositorys.MultaRepository;
 import com.api.biblioteca.repositorys.PrestamoRepository;
 import com.api.biblioteca.repositorys.UsuarioRepository;
 import com.api.biblioteca.services.PrestamoService;
@@ -35,16 +42,20 @@ import lombok.extern.slf4j.Slf4j;
 public class PrestamoServiceImpl implements PrestamoService{
     
     private final PrestamoRepository prestamoRepository;
+    private final MultaRepository multaRepository;
     private final UsuarioRepository usuarioRepository;
     private final EjemplarRepository ejemplarRepository;
     private final EstadoPrestamoRepository estadoPrestamoRepository;
     private final EstadoEjemplarRepository estadoEjemplarRepository;
+    private final EstadoMultaRepository estadoMultaRepository;
 
     private final PrestamoMapper prestamoMapper;
 
     @Value("${app.prestamo-dias-limite}")
     private int DIAS_LIMITE;
     
+
+    /* ========================== SERVICIOS PARA ADMIN Y BIBLIOTECARIOS ============================= */
     @Override
     @Transactional
     public List<PrestamoResponse> crearNuevo(PrestamoRequest request, CustomUserDetails usuarioAdmin) {
@@ -56,7 +67,7 @@ public class PrestamoServiceImpl implements PrestamoService{
             throw new BusinessExeption("No se puede hacer prestamos a usuario, INACTIVO, SUSPENDIDO O BLOQUEADO.");
         }
 
-        if(prestamoRepository.countByUsuarioAndMultaIsNotNull(usuario) >= 2){
+        if(multaRepository.countByUsuarioAndEstado(usuario, buscarEstadoMultaPorNombre(EstadoMultaNombre.PENDIENTE)) >= 2){
             throw new BusinessExeption("No se puede prestar a usuarios con mas de 2 multas.");
         }
 
@@ -96,7 +107,7 @@ public class PrestamoServiceImpl implements PrestamoService{
 
     @Override
     public List<PrestamoResponse> obtenerPrestamos(Long estadoId, Long usuarioAdminId, Long usuarioId) {
-        return prestamoMapper.listEntityToListDto(prestamoRepository.buscarPorParametros(estadoId, usuarioAdminId, usuarioId));
+        return null;
     }
 
     @Override
@@ -123,11 +134,23 @@ public class PrestamoServiceImpl implements PrestamoService{
         return prestamoMapper.entityToDto(prestamoRepository.save(prestamo));
     }
 
+    /* =========================== SERVICIO PARA APP WEB RESERVAS ======================================= */
     @Override
-    public List<PrestamoResponse> misPrestamos(CustomUserDetails usuario) {
-        return prestamoMapper.listEntityToListDto(prestamoRepository.findByUsuario(usuario.getUsuario()));
+    public PaginaResponse<PrestamoResponse> misPrestamos(CustomUserDetails usuario, EstadoPrestamoNombre estado, Pageable pageable) {
+        Page<Prestamo> prestamos = prestamoRepository.misPrestamos(usuario.getUsuario(), estado, pageable);
+        Page<PrestamoResponse> paginaResponse = prestamos.map(prestamoMapper::entityToDto);
+
+        return new PaginaResponse<>(
+            paginaResponse.getContent(), 
+            paginaResponse.getNumber(), 
+            paginaResponse.getTotalPages(), 
+            paginaResponse.getTotalElements(), 
+            paginaResponse.isFirst(), 
+            paginaResponse.isLast()
+        );
     }
 
+    /* ============================ SERIVICIO PARA SCHEDULED  =========================================== */
     @Override
     @Transactional
     public List<Prestamo> actualizarPrestamosEstadoVencido() {
@@ -145,15 +168,19 @@ public class PrestamoServiceImpl implements PrestamoService{
 
 
 
-    // FUNCIONES REUTILIZABLES
+    /* ============================ FUNCIONES REUTILIZABLES ============================================== */
     private EstadoPrestamo buscarPorNombre(EstadoPrestamoNombre nombre){
         return estadoPrestamoRepository.findByNombre(nombre)
-            .orElseThrow(()-> new ResourceNotFoundException("Estado prestamo no encontrado"));
+            .orElseThrow(()-> new ResourceNotFoundException("Estado prestamo no encontrado."));
     }
 
     private EstadoEjemplar buscarEstadoEjemplarPorNombre(EstadoEjemplarNombre nombre){
         return estadoEjemplarRepository.findByNombre(nombre)
-            .orElseThrow(()-> new ResourceNotFoundException("Estado ejempar no encontrado"));
+            .orElseThrow(()-> new ResourceNotFoundException("Estado ejemplar no encontrado."));
     }
 
+    private EstadoMulta buscarEstadoMultaPorNombre(EstadoMultaNombre nombre){
+        return estadoMultaRepository.findByNombre(nombre)
+            .orElseThrow(()-> new ResourceNotFoundException("Estado multa no encontrado."));
+    }
 }
