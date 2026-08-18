@@ -153,7 +153,10 @@ public class AuthServiceImpl implements AuthService{
         usuario.setEstado(estado);
         direccionRepository.save(direccion);
 
-        return usuarioMapper.entityToDto(usuarioRepository.save(usuario));
+        UsuarioResponse response = usuarioMapper.entityToDto(usuarioRepository.save(usuario));
+        response.setDireccion(direccionMapper.entityToDto(direccion));
+        
+        return response;
     }
 
     @Override
