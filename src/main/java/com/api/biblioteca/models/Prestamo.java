@@ -12,7 +12,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,10 +20,10 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "prestamos")
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Data
 public class Prestamo {
 
     @Id
@@ -57,7 +56,5 @@ public class Prestamo {
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_ejemplar", nullable = false)
     private Ejemplar ejemplar;
-
-    @OneToOne(mappedBy = "prestamo", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Multa multa;
+    
 }
