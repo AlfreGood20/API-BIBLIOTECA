@@ -115,7 +115,11 @@ public class UsuarioServiceImpl implements UsuarioService{
         direccion.setMunicipio(buscarMunicipioPorId(request.direccion().municipioId()));
 
         direccionRepository.save(direccion);
-        return usuarioMapper.entityToDto(usuarioRepository.save(nuevo));
+
+        UsuarioResponse response = usuarioMapper.entityToDto(usuarioRepository.save(nuevo));
+        response.setDireccion(direccionMapper.entityToDto(direccion));
+
+        return response;
     }
 
     @Override

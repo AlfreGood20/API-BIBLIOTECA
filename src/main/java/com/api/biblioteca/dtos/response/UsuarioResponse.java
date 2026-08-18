@@ -4,27 +4,34 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public record UsuarioResponse
-(
-    Long id,
-    String nombre,
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@Builder
+public class UsuarioResponse {
+
+    private Long id;
+    private String nombre;
     @JsonProperty("apellido_paterno")
-    String apellidoPaterno,
+    private String apellidoPaterno;
     @JsonProperty("apellido_materno")
-    String apellidoMaterno,
+    private String apellidoMaterno;
     @JsonProperty("fecha_nacimiento")
-    LocalDate fechaNacimiento,
-    String genero,
-    String curp,
-    String correo,
+    private LocalDate fechaNacimiento;
+    private String genero;
+    private String curp;
+    private String correo;
     @JsonProperty("fecha_registro")
-    LocalDateTime fechaRegistro,
+    private LocalDateTime fechaRegistro;
     @JsonProperty("foto_url")
-    String fotoUrl,
-    String rol,
-    String estado,
-    List<TelefonoResponse> telefonos,
-    DireccionResponse direccion
-) {
-}
+    private String fotoUrl;
+    private String rol;
+    private String estado;
+    private List<TelefonoResponse> telefonos;
+    private DireccionResponse direccion;
+} 

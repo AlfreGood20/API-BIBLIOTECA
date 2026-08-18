@@ -12,16 +12,18 @@ import com.api.biblioteca.models.Usuario;
 @Mapper(componentModel = "spring", uses = {TelefonoMapper.class, DireccionMapper.class})
 public interface UsuarioMapper {
 
-    // Entity To Dto
+    /* ================== ENTIDAD A DTO RESPONSE ===================== */
     @Mapping(source = "estado.nombre", target = "estado")
     @Mapping(source = "rol.nombre", target = "rol")
     @Mapping(source = "credencial.correo", target = "correo")
+    @Mapping(target = "direccion", ignore = true)
     UsuarioResponse entityToDto(Usuario entity);
 
+    /* ================ ENTIDAD A DTO RESUMEN ========================= */
     @Mapping(source = "credencial.correo", target = "correo")
     UsuarioResumen entityToResumen(Usuario entity);
 
-    // Dto to entity
+    /* ================ DTO REQUEST A ENTIDAD ========================= */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "credencial", ignore = true)
     @Mapping(target = "fechaRegistro", ignore = true)
@@ -30,6 +32,7 @@ public interface UsuarioMapper {
     @Mapping(target = "tokens", ignore = true)
     Usuario dtoToEntity(UsuarioRequest request);
 
+    /* ============= DTO REQUEST REGISTRO A ENTIDAD =================== */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "fechaRegistro", ignore = true)
     @Mapping(target = "credencial", ignore = true)
