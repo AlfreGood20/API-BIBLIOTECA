@@ -142,7 +142,6 @@ public class AuthServiceImpl implements AuthService{
         usuario.setTelefonos(telefonos);
 
         Direccion direccion = direccionMapper.dtoToEntity(request.direccion());
-        direccion.setUsuario(usuario);
 
         Municipio municipio = municipioRepository.findById(request.direccion().municipioId())
             .orElseThrow(() -> new ResourceNotFoundException("Municipio no encontrado."));
@@ -151,10 +150,13 @@ public class AuthServiceImpl implements AuthService{
         usuario.setCredencial(credencial);
         usuario.setRol(rol);
         usuario.setEstado(estado);
-        direccionRepository.save(direccion);
 
-        UsuarioResponse response = usuarioMapper.entityToDto(usuarioRepository.save(usuario));
-        response.setDireccion(direccionMapper.entityToDto(direccion));
+        Usuario usuarioGuardado = usuarioRepository.save(usuario);
+
+        direccion.setUsuario(usuarioGuardado);
+
+        UsuarioResponse response = usuarioMapper.entityToDto(usuarioGuardado);
+        response.setDireccion(direccionMapper.entityToDto(direccionRepository.save(direccion)));
         
         return response;
     }

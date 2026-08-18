@@ -71,7 +71,6 @@ public class UsuarioServiceImpl implements UsuarioService{
     private final TelefonoRepository telefonoRepository;
     private final DireccionRepository direccionRepository;
     
-
     private final PasswordEncoder encoder;
     private final Path uploadPath;
 
@@ -79,13 +78,13 @@ public class UsuarioServiceImpl implements UsuarioService{
     @Transactional
     public UsuarioResponse crearNuevo(UsuarioRequest request) {
 
-        Usuario nuevo = usuarioMapper.dtoToEntity(request);
+        Usuario usuario = usuarioMapper.dtoToEntity(request);
 
         Rol rol = buscarRolPorId(request.rolId());
-        nuevo.setRol(rol);
+        usuario.setRol(rol);
 
         EstadoUsuario estado = buscarEstadoUsuario(EstadoUsuarioNombre.ACTIVO);
-        nuevo.setEstado(estado);
+        usuario.setEstado(estado);
 
         if(credencialRepository.existsByCorreo(request.credencial().correo())){
             throw new ConflictExeption("Correo ya existente registrado.");
@@ -94,30 +93,30 @@ public class UsuarioServiceImpl implements UsuarioService{
         Credencial credencial = Credencial.builder()
             .contrasena(encoder.encode(request.credencial().contrasena()))
             .correo(request.credencial().correo())
-            .usuario(nuevo).build();
+            .usuario(usuario).build();
 
-        nuevo.setCredencial(credencial);
+        usuario.setCredencial(credencial);
 
         List<Telefono> telefonos = request.telefonos()
             .stream()
             .map(t -> {
                 Telefono telefono = telefonoMapper.dtoToEntity(t);
-                telefono.setUsuario(nuevo);
+                telefono.setUsuario(usuario);
                 telefono.setTipo(buscarTipoTelefonoPorId(t.tipoId()));
 
                 return telefono;
             })
             .toList();
-        nuevo.setTelefonos(telefonos);
+
+        usuario.setTelefonos(telefonos);
 
         Direccion direccion = direccionMapper.dtoToEntity(request.direccion());
-        direccion.setUsuario(nuevo);
         direccion.setMunicipio(buscarMunicipioPorId(request.direccion().municipioId()));
 
-        direccionRepository.save(direccion);
-
-        UsuarioResponse response = usuarioMapper.entityToDto(usuarioRepository.save(nuevo));
-        response.setDireccion(direccionMapper.entityToDto(direccion));
+        Usuario usuarioGuardado = usuarioRepository.save(usuario);
+        direccion.setUsuario(usuarioGuardado);
+        UsuarioResponse response = usuarioMapper.entityToDto(usuarioGuardado);
+        response.setDireccion(direccionMapper.entityToDto(direccionRepository.save(direccion)));
 
         return response;
     }
