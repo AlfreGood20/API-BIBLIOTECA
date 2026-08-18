@@ -13,6 +13,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -145,7 +146,7 @@ public class GlobalExceptionHandler {
     }
 
 
-    //400 VALIDACIONES DE FORMULARIO
+    //400 VALIDACIONES DE FORMULARIOS
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> badRequest(MethodArgumentNotValidException ex, HttpServletRequest request){
 
@@ -163,7 +164,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(response);
     }
 
+    // 403 PARA MANEJAR ACCESO NO AUTORIZADO MANUALMENTE
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<?> manejarSinPermisoAUnRecurso(AccessDeniedException ex, HttpServletRequest request){
 
+        ResponseExeption mensaje = ResponseExeption.builder()
+            .status(HttpStatus.FORBIDDEN.value())
+            .error(HttpStatus.FORBIDDEN.getReasonPhrase())
+            .menssaje(ex.getMessage())
+            .uri(request.getRequestURI())
+            .timestamp(LocalDateTime.now())
+            .build();
+
+        return new ResponseEntity<>(mensaje, HttpStatus.FORBIDDEN);
+    }
 
 
     //404 PARA MANEJAR USERNAME NO ENCONTRADO (CORREO NO ENCONTRADO)
@@ -181,7 +195,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
-    //404
+    //404 PARA MANEJAR BUSQUEDA O COSA MANUAL NO ENCONTRADO
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<?> notFound(ResourceNotFoundException ex, HttpServletRequest request){
 
@@ -196,7 +210,22 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
-    //405
+    // 404 PARA MANEJAR RUTAS NO ENCONTRADOS
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<?> rutaNoEnontrado(HttpServletRequest request){
+
+        ResponseExeption response = ResponseExeption.builder()
+            .status(HttpStatus.NOT_FOUND.value())
+            .error("Recurso No Encontrado")
+            .menssaje("Ruta "+request.getRequestURI()+" no existe y/o no se encontro.")
+            .uri(request.getRequestURI())
+            .timestamp(LocalDateTime.now())
+            .build();
+
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    //405 PARA MANEJAR RUTA NO SORPOTA TAL METODO
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<?> methodNotAllowed(HttpServletRequest request){
 
@@ -254,20 +283,6 @@ public class GlobalExceptionHandler {
             .build();
         
         return ResponseEntity.internalServerError().body(mensaje);
-    }
-
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<?> manejarSinPermisoAUnRecurso(AccessDeniedException ex, HttpServletRequest request){
-
-        ResponseExeption mensaje = ResponseExeption.builder()
-            .status(HttpStatus.FORBIDDEN.value())
-            .error(HttpStatus.FORBIDDEN.getReasonPhrase())
-            .menssaje(ex.getMessage())
-            .uri(request.getRequestURI())
-            .timestamp(LocalDateTime.now())
-            .build();
-
-        return new ResponseEntity<>(mensaje, HttpStatus.FORBIDDEN);
     }
 
 
