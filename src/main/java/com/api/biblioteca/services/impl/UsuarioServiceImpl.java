@@ -1,6 +1,5 @@
 package com.api.biblioteca.services.impl;
 
-//import com.api.biblioteca.repositorys.ReservaRepository;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,22 +26,19 @@ import com.api.biblioteca.exceptions.BusinessExeption;
 import com.api.biblioteca.exceptions.ConflictExeption;
 import com.api.biblioteca.exceptions.ResourceNotFoundException;
 import com.api.biblioteca.mappers.DireccionMapper;
-import com.api.biblioteca.mappers.MultaMapper;
 import com.api.biblioteca.mappers.PrestamoMapper;
-//import com.api.biblioteca.mappers.ReservaMapper;
 import com.api.biblioteca.mappers.TelefonoMapper;
 import com.api.biblioteca.mappers.UsuarioMapper;
 import com.api.biblioteca.models.Credencial;
 import com.api.biblioteca.models.Direccion;
 import com.api.biblioteca.models.EstadoUsuario;
-import com.api.biblioteca.models.Multa;
 import com.api.biblioteca.models.Municipio;
-import com.api.biblioteca.models.Prestamo;
 import com.api.biblioteca.models.Rol;
 import com.api.biblioteca.models.Telefono;
 import com.api.biblioteca.models.TipoTelefono;
 import com.api.biblioteca.models.Usuario;
 import com.api.biblioteca.repositorys.CredencialRepository;
+import com.api.biblioteca.repositorys.DireccionRepository;
 import com.api.biblioteca.repositorys.EstadoUsuarioRepository;
 import com.api.biblioteca.repositorys.MunicipioRepository;
 import com.api.biblioteca.repositorys.PrestamoRepository;
@@ -65,9 +61,7 @@ public class UsuarioServiceImpl implements UsuarioService{
     private final UsuarioRepository usuarioRepository;
     private final TelefonoMapper telefonoMapper;
     private final PrestamoMapper prestamoMapper;
-    private final MultaMapper multaMapper;
-    //private final ReservaMapper reservaMapper;
-
+    
     private final RolRepository rolRepository;
     private final EstadoUsuarioRepository estadoUsuarioRepository;
     private final MunicipioRepository municipioRepository;
@@ -75,7 +69,8 @@ public class UsuarioServiceImpl implements UsuarioService{
     private final CredencialRepository credencialRepository;
     private final PrestamoRepository prestamoRepository;
     private final TelefonoRepository telefonoRepository;
-    //private final ReservaRepository reservaRepository;
+    private final DireccionRepository direccionRepository;
+    
 
     private final PasswordEncoder encoder;
     private final Path uploadPath;
@@ -119,8 +114,7 @@ public class UsuarioServiceImpl implements UsuarioService{
         direccion.setUsuario(nuevo);
         direccion.setMunicipio(buscarMunicipioPorId(request.direccion().municipioId()));
 
-        nuevo.setDireccion(direccion);
-
+        direccionRepository.save(direccion);
         return usuarioMapper.entityToDto(usuarioRepository.save(nuevo));
     }
 
@@ -166,16 +160,7 @@ public class UsuarioServiceImpl implements UsuarioService{
 
     @Override
     public List<MultaResponse> multasPorUsuario(Long id) {
-
-        Usuario usuario = buscarUsuarioPorId(id);
-        
-        List<Prestamo> prestamos = prestamoRepository.findByUsuario(usuario);
-        List<Multa> multas = prestamos.stream()
-            .map(Prestamo::getMulta)
-            .filter(multa -> multa != null)
-            .toList();
-
-        return multaMapper.listEntityToListDto(multas);
+        return null;
     }
 
     @Override

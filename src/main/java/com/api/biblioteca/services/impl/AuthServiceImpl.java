@@ -30,6 +30,7 @@ import com.api.biblioteca.models.TipoTelefono;
 import com.api.biblioteca.models.Token;
 import com.api.biblioteca.models.Usuario;
 import com.api.biblioteca.repositorys.CredencialRepository;
+import com.api.biblioteca.repositorys.DireccionRepository;
 import com.api.biblioteca.repositorys.EstadoUsuarioRepository;
 import com.api.biblioteca.repositorys.MunicipioRepository;
 import com.api.biblioteca.repositorys.RolRepository;
@@ -48,6 +49,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthServiceImpl implements AuthService{
 
     private final TokenRepository tokenRepository;
+    private final DireccionRepository direccionRepository;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final UsuarioMapper usuarioMapper;
@@ -112,7 +114,6 @@ public class AuthServiceImpl implements AuthService{
         
         Usuario usuario = usuarioMapper.dtoPublicToEntity(request);
 
-
         Credencial credencial = Credencial.builder()
             .correo(request.credencial().correo())
             .contrasena(encoder.encode(request.credencial().contrasena()))
@@ -146,11 +147,11 @@ public class AuthServiceImpl implements AuthService{
         Municipio municipio = municipioRepository.findById(request.direccion().municipioId())
             .orElseThrow(() -> new ResourceNotFoundException("Municipio no encontrado."));
         direccion.setMunicipio(municipio);
-
-        usuario.setDireccion(direccion);
+        
         usuario.setCredencial(credencial);
         usuario.setRol(rol);
         usuario.setEstado(estado);
+        direccionRepository.save(direccion);
 
         return usuarioMapper.entityToDto(usuarioRepository.save(usuario));
     }
@@ -178,7 +179,7 @@ public class AuthServiceImpl implements AuthService{
 
     
 
-    //FUNCIONES REUTILIZABLE
+    /* ===================================== FUNCIONES REUTILIZABLES ======================================= */
     private TokenResponse obtenerTokenAccess(CustomUserDetails usuario, HttpServletResponse response){
 
         String tokenAccess = jwtService.generarTokenAccess(usuario);
@@ -200,7 +201,7 @@ public class AuthServiceImpl implements AuthService{
 
         Cookie cookie = new Cookie("TOKEN_REFRESH", token);
         cookie.setHttpOnly(true);
-        cookie.setSecure(false);
+        cookie.setSecure(false); /* RECUERDA PONERLO EN TRUE EN PRODUCCIÓN */
         cookie.setPath("/api/auth");
         cookie.setMaxAge(maxAge);
 
