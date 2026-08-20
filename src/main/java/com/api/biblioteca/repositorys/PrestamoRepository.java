@@ -27,6 +27,21 @@ public interface PrestamoRepository extends JpaRepository<Prestamo, Long> {
         Pageable Pageable
     );
 
+    @EntityGraph(attributePaths = {"ejemplar", "estado", "usuarioAdmin"})
+    @Query("""
+            SELECT p FROM Prestamo p
+            WHERE (:estado IS NULL OR p.estado.nombre = :estado)
+            AND (:usuarioAdminId IS NULL OR p.usuarioAdmin.id = :usuarioAdminId)
+            AND (:usuarioId IS NULL OR p.usuario.id = :usuarioId)
+            """)
+    Page<Prestamo> prestamosPorFiltro(
+        @Param("estado") EstadoPrestamoNombre estado, 
+        @Param("usuarioAdminId") Long usuarioAdminId, 
+        @Param("usuarioId") Long usuarioId, 
+        Pageable pageable
+    );
+
+
     List<Prestamo> findByUsuario(Usuario usuario);
 
     List<Prestamo> findByEstadoAndFechaLimiteBefore(EstadoPrestamo estado, LocalDate fecha);

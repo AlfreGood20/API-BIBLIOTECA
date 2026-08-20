@@ -14,6 +14,7 @@ public record PrestamoRequest
     Long usuarioId,
 
     @NotEmpty(message = "Es obligatorio")
+    @JsonProperty("ejemplar_ids")
     Set<@Positive(message = "Los valores tiene que ser positivos") Long> ejemplaresId
 ) {
 }
