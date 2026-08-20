@@ -1,0 +1,24 @@
+info:
+  name: actualizar-foto
+  type: http
+  seq: 3
+
+http:
+  method: PATCH
+  url: "{{URL-API}}/perfil/foto"
+  body:
+    type: multipart-form
+    data:
+      - name: imagen
+        type: text
+        value: ""
+        description: Subir una imagen png o jpg.
+  auth:
+    type: bearer
+    token: ""
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

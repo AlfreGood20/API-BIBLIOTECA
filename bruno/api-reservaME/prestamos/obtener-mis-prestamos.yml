@@ -1,0 +1,49 @@
+info:
+  name: obtener-mis-prestamos
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{URL-API}}/prestamos/usuario"
+  params:
+    - name: estado
+      value: ACTIVO
+      type: query
+      disabled: true
+    - name: estado
+      value: DEVUELTO
+      type: query
+      disabled: true
+    - name: estado
+      value: VENCIDO
+      type: query
+      disabled: true
+    - name: estado
+      value: RENOVADO
+      type: query
+      disabled: true
+    - name: page
+      value: "0"
+      type: query
+      description: Obtener por numero de pagina dependiendo el numero de total de paginas.
+      disabled: true
+    - name: size
+      value: "5"
+      type: query
+      description: Obtener el maximo de elementos a recibir.
+      disabled: true
+    - name: sort
+      value: id,asc
+      type: query
+      description: Obtener por orden. Por asc (ascendente) o desc (descendiente).
+      disabled: true
+  auth:
+    type: bearer
+    token: ""
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,21 @@
+info:
+  name: cancelar-reserva
+  type: http
+  seq: 3
+
+http:
+  method: PATCH
+  url: "{{URL-API}}/reservas/usuario/:id"
+  params:
+    - name: id
+      value: ""
+      type: path
+      description: id de la reserva que vas a cancelar.
+  auth:
+    type: bearer
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

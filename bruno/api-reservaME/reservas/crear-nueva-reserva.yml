@@ -1,0 +1,23 @@
+info:
+  name: crear-nueva-reserva
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{URL-API}}/reservas/usuario"
+  body:
+    type: json
+    data: |-
+      {
+        "libro_id": 0
+      }
+  auth:
+    type: bearer
+    token: ""
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

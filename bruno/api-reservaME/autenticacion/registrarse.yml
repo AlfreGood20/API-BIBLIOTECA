@@ -1,0 +1,44 @@
+info:
+  name: registrarse
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{URL-API}}/auth/register"
+  body:
+    type: json
+    data: |-
+      {
+        "nombre": "",
+        "apellido_paterno": "",
+        "apellido_materno": "",
+        "fecha_nacimiento": "",
+        "genero": "",
+        "curp": "",
+        "telefonos": [
+          {
+            "numero": "",
+            "tipo_id": 0
+          }
+        ],
+        "direccion": {
+          "municipio_id": 0,
+          "calle": "",
+          "colonia": "",
+          "numero_exterior": "",
+          "numero_interior": "",
+          "codigo_postal": ""
+        },
+        "credencial": {
+          "correo": "",
+          "contrasena": ""
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

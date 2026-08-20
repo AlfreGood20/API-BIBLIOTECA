@@ -1,0 +1,31 @@
+info:
+  name: actualizar-datos
+  type: http
+  seq: 2
+
+http:
+  method: PATCH
+  url: "{{URL-API}}/perfil"
+  body:
+    type: json
+    data: |-
+      {
+        "nombre": "",
+        "apellido_paterno": "",
+        "apellido_materno": "",
+        "telefonos": [
+          {
+            "telefono_id": 0,
+            "numero": ""
+          }
+        ]
+      }
+  auth:
+    type: bearer
+    token: ""
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
