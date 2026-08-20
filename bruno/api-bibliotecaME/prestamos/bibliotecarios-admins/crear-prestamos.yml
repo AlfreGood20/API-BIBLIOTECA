@@ -1,0 +1,24 @@
+info:
+  name: crear-prestamos
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{URL-API}}/prestamos/bibliotecario"
+  body:
+    type: json
+    data: |-
+      {
+        "usuario_id": 0,
+        "ejemplar_ids": [
+          0
+        ]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

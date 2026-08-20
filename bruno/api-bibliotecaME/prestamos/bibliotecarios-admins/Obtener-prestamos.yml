@@ -1,0 +1,44 @@
+info:
+  name: Obtener-prestamos
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: "{{URL-API}}/prestamos/bibliotecario"
+  params:
+    - name: estado
+      value: ACTIVO
+      type: query
+      disabled: true
+    - name: estado
+      value: DEVUELTO
+      type: query
+      disabled: true
+    - name: estado
+      value: RENOVADO
+      type: query
+      disabled: true
+    - name: estado
+      value: VENCIDO
+      type: query
+      disabled: true
+    - name: sort
+      value: id,asc
+      type: query
+      disabled: true
+    - name: page
+      value: "0"
+      type: query
+      disabled: true
+    - name: size
+      value: "0"
+      type: query
+      disabled: true
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,19 @@
+info:
+  name: devolver-prestamo-por-id
+  type: http
+  seq: 3
+
+http:
+  method: PATCH
+  url: "{{URL-API}}/prestamos/bibliotecario/:id"
+  params:
+    - name: id
+      value: "0"
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
