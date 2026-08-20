@@ -175,9 +175,15 @@ public class UsuarioServiceImpl implements UsuarioService{
 
     /* ======================== SERVICIOS PARA USUARIOS APP WEB RESERVAS ========================== */
     @Override
+    @Transactional(readOnly = true)
     public UsuarioResponse obtenerPerfil(CustomUserDetails usuario) {
-        Usuario usuarioFinal = buscarUsuarioPorId(usuario.id());
-        return usuarioMapper.entityToDto(usuarioFinal);
+        Usuario usarioAutenticado = buscarUsuarioPorId(usuario.id());
+
+        UsuarioResponse response = usuarioMapper.entityToDto(usarioAutenticado);
+        Direccion direccionUsuario = direccionRepository.findByUsuario(usarioAutenticado).orElse(null);
+
+        response.setDireccion(direccionMapper.entityToDto(direccionUsuario));
+        return response;
     }
 
     @Override
@@ -204,7 +210,12 @@ public class UsuarioServiceImpl implements UsuarioService{
             borrarFotoDelDirectorio(fotoVieja);
         }
 
-        return usuarioMapper.entityToDto(usuarioRepository.save(usuarioObtenido));
+        Direccion direccionUsuario = direccionRepository.findByUsuario(usuarioObtenido).orElse(null);
+
+        UsuarioResponse response = usuarioMapper.entityToDto(usuarioObtenido);
+        response.setDireccion(direccionMapper.entityToDto(direccionUsuario));
+        
+        return response;
     }
 
     @Override
