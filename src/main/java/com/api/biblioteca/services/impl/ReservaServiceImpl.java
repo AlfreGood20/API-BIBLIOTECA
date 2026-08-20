@@ -2,13 +2,11 @@ package com.api.biblioteca.services.impl;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.api.biblioteca.configurations.CustomUserDetails;
-import com.api.biblioteca.dtos.request.PrestamoRequest;
 import com.api.biblioteca.dtos.request.ReservaRequest;
 import com.api.biblioteca.dtos.response.PaginaResponse;
 import com.api.biblioteca.dtos.response.ReservaResponse;
@@ -52,6 +50,28 @@ public class ReservaServiceImpl implements ReservaService{
 
 
     /* =============================== SERVICIOS PARA APP WEB RESERVAS ====================================*/
+    @Override
+    @Transactional
+    public ReservaResponse crearNuevo(ReservaRequest request, CustomUserDetails usuario) {
+
+        EstadoReserva estadoReserva = buscarEstadoReservaPorNombre(EstadoReservaNombre.PENDIENTE);
+
+        if(reservaRepository.countByUsuarioAndEstado(usuario.getUsuario(), estadoReserva) >= 10){
+            throw new ConflictExeption("No puedes tener más de 10 reservas en estado PENDIENTE.");
+        }
+
+        Libro libro = libroRepository.findById(request.libroId())
+            .orElseThrow(() -> new ResourceNotFoundException("Libro no encontrado."));
+
+        Reserva reserva = Reserva.builder()
+            .usuario(usuario.getUsuario())
+            .libro(libro)
+            .estado(estadoReserva)
+            .build();
+
+        return reservaMapper.entityToDto(reservaRepository.save(reserva));
+    }
+
    @Override
     public PaginaResponse<ReservaResponse> misReservas(CustomUserDetails usuario, EstadoReservaNombre estado, Pageable pageable) {
         Page<Reserva> reservas = reservaRepository.buscarMisReservas(usuario.getUsuario(), estado, pageable);
@@ -90,29 +110,6 @@ public class ReservaServiceImpl implements ReservaService{
     /* ======================== SERVICIOS PARA ADMIN USUARIO ================================ */
     @Override
     @Transactional
-    public ReservaResponse crearNuevo(ReservaRequest request, CustomUserDetails usuario) {
-
-        EstadoReserva estadoReserva = buscarEstadoReservaPorNombre(EstadoReservaNombre.PENDIENTE);
-
-        if(reservaRepository.countByUsuarioAndEstado(usuario.getUsuario(), estadoReserva) >= 10){
-            throw new ConflictExeption("No puedes tener más de 10 reservas en estado PENDIENTE.");
-        }
-
-        Libro libro = libroRepository.findById(request.libroId())
-            .orElseThrow(() -> new ResourceNotFoundException("Libro no encontrado."));
-
-        Reserva reserva = Reserva.builder()
-            .usuario(usuario.getUsuario())
-            .libro(libro)
-            .estado(estadoReserva)
-            .build();
-
-        return reservaMapper.entityToDto(reservaRepository.save(reserva));
-    }
-
-
-    @Override
-    @Transactional
     public ReservaResponse cambiarEstadoReserva(Long id, EstadoRequest request, CustomUserDetails usuarioAdmin) {
 
         Reserva reserva = reservaRepository.findById(id)
@@ -137,12 +134,7 @@ public class ReservaServiceImpl implements ReservaService{
             ejemplarRepository.findFirstByLibroAndEstadoOrderByIdAsc(reserva.getLibro(), buscarEstadoEjemplarPorNombre(EstadoEjemplarNombre.DISPONIBLE))
                 .orElseThrow(() -> new ConflictExeption("No hay ejemplares disponibles."));
         
-        PrestamoRequest prestamo = new PrestamoRequest(
-            reserva.getUsuario().getId(), 
-            Set.of(ejemplarDisponible.getId())
-        );
-
-        prestamoService.crearNuevo(prestamo, usuarioAdmin);
+        prestamoService.generarPrestamo(reserva.getUsuario(), ejemplarDisponible.getId(), usuarioAdmin.getUsuario());
         reserva.setEstado(estadoReserva);
         
         return reservaMapper.entityToDto(reservaRepository.save(reserva));
