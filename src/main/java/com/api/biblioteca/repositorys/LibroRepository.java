@@ -1,6 +1,5 @@
 package com.api.biblioteca.repositorys;
 
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -20,13 +19,15 @@ public interface LibroRepository extends JpaRepository<Libro, Long> {
         AND (:categoriaId IS NULL OR l.categoria.id = :categoriaId)
         AND (:editorialId IS NULL OR l.editorial.id = :editorialId)
         AND (:idiomaId IS NULL OR l.idioma.id = :idiomaId)
+        AND (:autorId  IS NULL OR l.autor.id = :autorId)
     """)
     Page<Libro> findByFiltros(
         @Param("titulo") String titulo,
         @Param("isbn") String isbn,
         @Param("categoriaId") Long categoriaId,
         @Param("editorialId") Long editorialId,
-        @Param("idiomaId") Long idiomaId,
+        @Param("idiomaId") Long idiomaId, 
+        @Param("autorId") Long autorId,
         Pageable pageable
     );
 }
